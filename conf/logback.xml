@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property name="APP_NAME" value="cam-authentication"/>
+    <property name="LOG_DIR" value="C:/Applications/CAM General Services/Log/"/>
+
+    <appender name="console-log" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%level] %c{1.} [%t] %msg%n</pattern>
+        </encoder>
+    </appender>
+	
+    <appender name="file-log" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_DIR}${APP_NAME}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}${APP_NAME}-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>1MB</maxFileSize>
+            <maxHistory>10</maxHistory>
+            <totalSizeCap>10MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%level] %c{1.} [%t] %msg%n</pattern>
+        </encoder>
+    </appender>
+    
+	<appender name="kafka-appender" class="com.github.danielwegener.logback.kafka.KafkaAppender">
+         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+               <pattern>%d{yyyy-MM-dd HH:mm:ss} [%level] [${APP_NAME}] %c{1.} [%t] %msg%n</pattern>
+         </encoder>
+ 
+         <topic>api-service-log-topic</topic>
+         <keyingStrategy class="com.github.danielwegener.logback.kafka.keying.NoKeyKeyingStrategy" />
+         <deliveryStrategy class="com.github.danielwegener.logback.kafka.delivery.AsynchronousDeliveryStrategy" />
+ 
+         <producerConfig>bootstrap.servers=amksx61084:9092,amksx61084:9093,amksx61084:9094</producerConfig>
+         <producerConfig>acks=0</producerConfig>
+         <producerConfig>linger.ms=100</producerConfig>
+         <producerConfig>max.block.ms=100</producerConfig>
+         <producerConfig>client.id=${HOSTNAME}-${CONTEXT_NAME}-logback-relaxed</producerConfig>
+    </appender>
+	
+	<root level="INFO">
+        <appender-ref ref="console-log"/>
+        <appender-ref ref="file-log"/>
+    </root>
+    <logger name="com.st.dit.cam" level="DEBUG">
+        <appender-ref ref="console-log"/>
+        <appender-ref ref="file-log"/>
+    </logger>
+    <logger name="org.hibernate.cache" level="DEBUG">
+        <appender-ref ref="console-log"/>
+        <appender-ref ref="file-log"/>
+    </logger>
+    <logger name="org.ehcache" level="DEBUG">
+        <appender-ref ref="console-log"/>
+        <appender-ref ref="file-log"/>
+    </logger>
+    <logger name="org.springframework" level="ERROR">
+        <appender-ref ref="console-log"/>
+        <appender-ref ref="file-log"/>
+    </logger>
+</configuration>
